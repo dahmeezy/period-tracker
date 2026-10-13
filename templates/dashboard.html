@@ -8,333 +8,163 @@
 
     <div class="dashboard-header">
         <div>
-            <p class="dashboard-eyebrow">YOUR CYCLE</p>
-            <h1>Welcome back, {{ user["name"] }} 👋</h1>
-            <p class="dashboard-subtitle">
-                Here's an overview of your cycle.
+            <p class="dashboard-eyebrow">Your cycle</p>
+            <h1>Hello, {{ session['user_name'].split()[0] }} 🌸</h1>
+            <p class="dashboard-subtitle">Here's where you are in your cycle today.</p>
+        </div>
+
+        <a href="{{ url_for('log_period') }}" class="primary-button dashboard-action">
+            + Log period
+        </a>
+    </div>
+
+    {% if not info %}
+
+        <div class="empty-dashboard">
+            <div class="empty-dashboard-icon">🩸</div>
+            <h2>No periods logged yet</h2>
+            <p>
+                Log your first period and Periodly will start predicting
+                your next period, fertile window and ovulation.
             </p>
+            <a href="{{ url_for('log_period') }}"
+               class="primary-button empty-dashboard-button">Log your first period</a>
         </div>
-
-        <a
-            href="{{ url_for('log_period') }}"
-            class="primary-button dashboard-action"
-        >
-            + Log Period
-        </a>
-    </div>
-
-
-    {% if last_period %}
-
-    <!-- Cycle Overview -->
-
-    <div class="cycle-overview">
-
-        <div class="cycle-card cycle-main-card">
-
-            <div class="cycle-card-header">
-                <div>
-                    <p class="card-label">NEXT PERIOD</p>
-
-                    {% if next_period %}
-                    <h2>
-                        {{ next_period.strftime("%B %d") }}
-                    </h2>
-
-                    <p class="card-muted">
-                        {% if days_until_next_period > 0 %}
-                            In {{ days_until_next_period }} days
-                        {% elif days_until_next_period == 0 %}
-                            Expected today
-                        {% else %}
-                            Estimated date has passed
-                        {% endif %}
-                    </p>
-
-                    {% else %}
-                    <h2>Not available</h2>
-                    {% endif %}
-                </div>
-
-                <div class="cycle-icon">
-                    🌸
-                </div>
-            </div>
-
-            <div class="cycle-progress">
-
-                <div class="progress-labels">
-                    <span>Cycle day {{ cycle_day }}</span>
-                    <span>{{ average_cycle_length }} days</span>
-                </div>
-
-                <div class="progress-track">
-                    <div
-                        class="progress-fill"
-                        style="width: {{ ((cycle_day / average_cycle_length) * 100) if cycle_day and cycle_day < average_cycle_length else 100 }}%;"
-                    ></div>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="cycle-stat-card">
-
-            <div class="stat-icon pink-icon">
-                🩷
-            </div>
-
-            <div>
-                <p class="card-label">AVERAGE CYCLE</p>
-                <h3>{{ average_cycle_length }} days</h3>
-                <p class="card-muted">Based on your history</p>
-            </div>
-
-        </div>
-
-
-        <div class="cycle-stat-card">
-
-            <div class="stat-icon purple-icon">
-                ◉
-            </div>
-
-            <div>
-                <p class="card-label">PERIOD LENGTH</p>
-                <h3>{{ average_period_length }} days</h3>
-                <p class="card-muted">Average duration</p>
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- Predictions -->
-
-    <div class="section-heading">
-        <div>
-            <p class="dashboard-eyebrow">ESTIMATES</p>
-            <h2>Cycle predictions</h2>
-        </div>
-    </div>
-
-    <div class="prediction-grid">
-
-        <div class="prediction-card fertile-card">
-
-            <div class="prediction-icon">
-                🌱
-            </div>
-
-            <div>
-                <p class="card-label">FERTILE WINDOW</p>
-
-                {% if fertile_start and fertile_end %}
-                <h3>
-                    {{ fertile_start.strftime("%b %d") }}
-                    –
-                    {{ fertile_end.strftime("%b %d") }}
-                </h3>
-
-                <p class="card-muted">
-                    Estimated fertile days
-                </p>
-                {% else %}
-                <h3>Not available</h3>
-                <p class="card-muted">
-                    Log more periods to see predictions.
-                </p>
-                {% endif %}
-            </div>
-
-        </div>
-
-
-        <div class="prediction-card ovulation-card">
-
-            <div class="prediction-icon">
-                ✦
-            </div>
-
-            <div>
-                <p class="card-label">ESTIMATED OVULATION</p>
-
-                {% if ovulation_date %}
-                <h3>
-                    {{ ovulation_date.strftime("%B %d") }}
-                </h3>
-
-                <p class="card-muted">
-                    Based on your average cycle
-                </p>
-                {% else %}
-                <h3>Not available</h3>
-                {% endif %}
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- Calendar -->
-
-    <div class="section-heading calendar-heading">
-
-        <div>
-            <p class="dashboard-eyebrow">YOUR MONTH</p>
-            <h2>
-                {{ current_month_name }} {{ current_year }}
-            </h2>
-        </div>
-
-    </div>
-
-
-    <div class="calendar-card">
-
-        <div class="calendar-weekdays">
-            <span>Sun</span>
-            <span>Mon</span>
-            <span>Tue</span>
-            <span>Wed</span>
-            <span>Thu</span>
-            <span>Fri</span>
-            <span>Sat</span>
-        </div>
-
-        <div class="calendar-grid">
-
-            {% for week in month_calendar %}
-
-                {% for day in week %}
-
-                    {% if day == 0 %}
-
-                        <div class="calendar-day empty"></div>
-
-                    {% else %}
-
-                        <div class="calendar-day
-                            {% if day in period_dates %}
-                                period-day
-                            {% elif day == ovulation_day %}
-                                ovulation-day
-                            {% elif day in fertile_dates %}
-                                fertile-day
-                            {% endif %}
-
-                            {% if day == current_day %}
-                                today
-                            {% endif %}
-                        ">
-
-                            <span>{{ day }}</span>
-
-                        </div>
-
-                    {% endif %}
-
-                {% endfor %}
-
-            {% endfor %}
-
-        </div>
-
-    </div>
-
-
-    <!-- Recent History -->
-
-    <div class="section-heading history-heading">
-
-        <div>
-            <p class="dashboard-eyebrow">RECENT ACTIVITY</p>
-            <h2>Recent periods</h2>
-        </div>
-
-        <a href="{{ url_for('history') }}">
-            View history →
-        </a>
-
-    </div>
-
-
-    <div class="recent-periods">
-
-    {% for item in recent_periods %}
-
-        {% set period = item["period"] %}
-
-        <div class="recent-period">
-
-            <div class="recent-period-icon">
-                🌸
-            </div>
-
-            <div class="recent-period-info">
-
-                <strong>
-                    {{ period["start_date"] }}
-                </strong>
-
-                <span>
-                    {{ period["flow"]|capitalize }} flow
-                </span>
-
-            </div>
-
-            <div class="recent-period-duration">
-
-                {% if item["duration"] %}
-                    {{ item["duration"] }} days
-                {% else %}
-                    Ongoing
-                {% endif %}
-
-            </div>
-
-        </div>
-
-    {% endfor %}
-
-</div>
-
-
-    <p class="dashboard-disclaimer">
-        Period and fertility predictions are estimates based on your
-        logged data and should not be used as medical advice.
-    </p>
-
 
     {% else %}
 
-    <!-- Empty Dashboard -->
+        <!-- Cycle overview -->
+        <div class="cycle-overview">
 
-    <div class="empty-dashboard">
+            <div class="cycle-card cycle-main-card">
+                <div class="cycle-card-header">
+                    <div>
+                        <p class="card-label">TODAY</p>
+                        <h2>Cycle day {{ info.cycle_day }}</h2>
+                        <p class="card-muted">{{ info.phase }}</p>
+                    </div>
+                    <div class="cycle-icon">🌸</div>
+                </div>
 
-        <div class="empty-dashboard-icon">
-            🌸
+                <div class="cycle-progress">
+                    <div class="progress-labels">
+                        <span>Day 1</span>
+                        <span>Day {{ info.cycle_length }}</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width: {{ info.progress }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cycle-stat-card">
+                <div class="stat-icon pink-icon">🩸</div>
+                <div>
+                    <p class="card-label">NEXT PERIOD</p>
+                    <h3>{{ info.next_start|pretty }}</h3>
+                    <p class="card-muted">{{ info.next_text }}</p>
+                </div>
+            </div>
+
+            <div class="cycle-stat-card">
+                <div class="stat-icon purple-icon">🔁</div>
+                <div>
+                    <p class="card-label">CYCLE LENGTH</p>
+                    <h3>{{ info.cycle_length }} days</h3>
+                    <p class="card-muted">
+                        {% if info.cycle_known %}
+                            Average of your logged cycles
+                        {% else %}
+                            Estimate. Log 2+ periods for yours
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+
         </div>
 
-        <h2>Let's start tracking your cycle</h2>
+        <!-- Predictions -->
+        <div class="section-heading">
+            <div>
+                <h2>Predictions</h2>
+                <p>Based on your logged cycles</p>
+            </div>
+        </div>
 
-        <p>
-            Log your first period to start seeing cycle insights,
-            predictions and history here.
+        <div class="prediction-grid">
+            <div class="prediction-card fertile-card">
+                <div class="prediction-icon">🌿</div>
+                <div>
+                    <h3>Fertile window</h3>
+                    <p>{{ info.fertile_start|pretty }} to {{ info.fertile_end|pretty }}</p>
+                </div>
+            </div>
+
+            <div class="prediction-card ovulation-card">
+                <div class="prediction-icon">✨</div>
+                <div>
+                    <h3>Ovulation</h3>
+                    <p>{{ info.ovulation|pretty }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar -->
+        <div class="section-heading calendar-heading">
+            <a href="{{ url_for('dashboard', month=prev_month) }}">← Prev</a>
+            <div>
+                <h2>{{ month_label }}</h2>
+            </div>
+            <a href="{{ url_for('dashboard', month=next_month) }}">Next →</a>
+        </div>
+
+        <div class="calendar-card">
+            <div class="calendar-weekdays">
+                <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span>
+                <span>Thu</span><span>Fri</span><span>Sat</span>
+            </div>
+
+            <div class="calendar-grid">
+                {% for cell in cells %}
+                    <div class="calendar-day {{ cell.classes }}">
+                        {% if not cell.empty %}<span>{{ cell.day }}</span>{% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <p class="dashboard-disclaimer" style="margin: -26px 0 42px;">
+            Pink = period &middot; Green = fertile window &middot; Purple = ovulation
         </p>
 
-        <a
-            href="{{ url_for('log_period') }}"
-            class="primary-button empty-dashboard-button"
-        >
-            Log Your First Period
-        </a>
+        <!-- Recent periods -->
+        <div class="section-heading history-heading">
+            <div>
+                <h2>Recent periods</h2>
+                <p>Your latest logs</p>
+            </div>
+            <a href="{{ url_for('history') }}">View all</a>
+        </div>
 
-    </div>
+        <div class="recent-periods">
+            {% for p in recent %}
+                <div class="recent-period">
+                    <div class="recent-period-icon">🩸</div>
+                    <div class="recent-period-info">
+                        <strong>{{ p.start|pretty }} to {{ p.end|pretty }}</strong>
+                        <span>{{ p.flow|capitalize }} flow</span>
+                    </div>
+                    <span class="recent-period-duration">
+                        {{ p.duration }} day{{ 's' if p.duration != 1 }}
+                    </span>
+                </div>
+            {% endfor %}
+        </div>
+
+        <p class="dashboard-disclaimer">
+            Predictions are estimates based on your own logs. They are not medical advice
+            and should not be used as birth control.
+        </p>
 
     {% endif %}
 
