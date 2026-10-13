@@ -3,55 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>{% block title %}Periodly{% endblock %}</title>
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css') }}"
-    >
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-
 <body>
 
     <header class="site-header">
-        <a href="{{ url_for('landing') }}" class="logo">
-            Periodly
-        </a>
+        <a href="{{ url_for('index') }}" class="logo">Periodly</a>
 
         <nav>
-            {% if session.get("user_id") %}
+            {% if session.get('user_id') %}
                 <a href="{{ url_for('dashboard') }}">Dashboard</a>
                 <a href="{{ url_for('history') }}">History</a>
-                <a href="{{ url_for('log_period') }}">Log Period</a>
+                <a href="{{ url_for('log_period') }}">Log period</a>
 
-                <form action="{{ url_for('logout') }}" method="POST">
-                    <button type="submit">Sign Out</button>
+                <form method="POST" action="{{ url_for('logout') }}">
+                    <button type="submit">Sign out</button>
                 </form>
             {% else %}
-                <a href="{{ url_for('signin') }}">Sign In</a>
-                <a href="{{ url_for('register') }}">Sign Up</a>
+                <a href="{{ url_for('signin') }}">Sign in</a>
+                <a href="{{ url_for('register') }}">Create account</a>
             {% endif %}
         </nav>
     </header>
 
-    <main>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="flash-container">
-                    {% for category, message in messages %}
-                        <div class="flash flash-{{ category }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
+    <main>
         {% block content %}{% endblock %}
     </main>
-
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 
 </body>
 </html>
