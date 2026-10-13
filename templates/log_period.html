@@ -1,232 +1,101 @@
 {% extends "base.html" %}
 
-{% block title %}Log Period | Periodly{% endblock %}
+{% block title %}{{ 'Edit period' if editing else 'Log period' }} | Periodly{% endblock %}
 
 {% block content %}
 
 <section class="log-period-page">
 
     <div class="log-period-header">
-
-        <a
-            href="{{ url_for('dashboard') }}"
-            class="back-link"
-        >
-            ← Dashboard
+        <a href="{{ url_for('history' if editing else 'dashboard') }}" class="back-link">
+            ← Back
         </a>
-
-        <p class="dashboard-eyebrow">
-            CYCLE TRACKING
-        </p>
-
-        <h1>Log your period</h1>
-
-        <p>
-            Record your period details to help Periodly understand
-            your cycle and provide better estimates.
-        </p>
-
+        <p class="dashboard-eyebrow">{{ 'Edit' if editing else 'New entry' }}</p>
+        <h1>{{ 'Edit period' if editing else 'Log a period' }}</h1>
+        <p>Add the dates, how heavy the flow was, and any symptoms you had.</p>
     </div>
 
+    <!-- No action given, so the form posts back to this same page -->
+    <form method="POST" class="log-period-form">
 
-    <form
-        method="POST"
-        class="log-period-form"
-    >
-
-        <!-- Dates -->
-
+        <!-- 1. Dates -->
         <div class="form-section">
-
             <div class="form-section-heading">
-
-                <span class="section-number">
-                    01
-                </span>
-
+                <span class="section-number">01</span>
                 <div>
-                    <h2>When was your period?</h2>
-
-                    <p>
-                        Tell us when your period started and ended.
-                    </p>
+                    <h2>Dates</h2>
+                    <p>When did it start and end?</p>
                 </div>
-
             </div>
-
 
             <div class="date-grid">
-
                 <div class="form-group">
-
-                    <label for="start_date">
-                        Start date
-                    </label>
-
-                    <input
-                        type="date"
-                        id="start_date"
-                        name="start_date"
-                        value="{{ request.form.get('start_date', '') }}"
-                        required
-                    >
-
-                    <span class="input-help">
-                        The first day of your period
-                    </span>
-
+                    <label for="start_date">Start date</label>
+                    <input type="date" id="start_date" name="start_date"
+                           value="{{ values.start_date }}" max="{{ today }}" required>
                 </div>
 
-
                 <div class="form-group">
-
-                    <label for="end_date">
-                        End date
-                    </label>
-
-                    <input
-                        type="date"
-                        id="end_date"
-                        name="end_date"
-                        value="{{ request.form.get('end_date', '') }}"
-                    >
-
-                    <span class="input-help">
-                        Leave blank if your period is ongoing
-                    </span>
-
+                    <label for="end_date">End date</label>
+                    <input type="date" id="end_date" name="end_date"
+                           value="{{ values.end_date }}" required>
+                    <span class="input-help">Still going? Pick your best guess and edit it later.</span>
                 </div>
-
             </div>
-
         </div>
 
-
-        <!-- Flow -->
-
+        <!-- 2. Flow -->
         <div class="form-section">
-
             <div class="form-section-heading">
-
-                <span class="section-number">
-                    02
-                </span>
-
+                <span class="section-number">02</span>
                 <div>
-                    <h2>How was your flow?</h2>
-
-                    <p>
-                        Choose the flow level that best describes your period.
-                    </p>
+                    <h2>Flow</h2>
+                    <p>How heavy was it overall?</p>
                 </div>
-
             </div>
-
 
             <div class="flow-options">
-
-                {% for flow in flow_levels %}
-
-                <label class="flow-option">
-
-                    <input
-                        type="radio"
-                        name="flow"
-                        value="{{ flow }}"
-                        {% if request.form.get('flow') == flow %}
-                            checked
-                        {% endif %}
-                        required
-                    >
-
-                    <span class="flow-option-content">
-
-                        <span class="flow-dot flow-{{ flow }}"></span>
-
-                        <span class="flow-name">
-                            {{ flow|capitalize }}
+                {% for flow in flows %}
+                    <label class="flow-option">
+                        <input type="radio" name="flow" value="{{ flow }}"
+                               {% if values.flow == flow %}checked{% endif %}>
+                        <span class="flow-option-content">
+                            <span class="flow-dot flow-{{ flow }}"></span>
+                            <span class="flow-name">{{ flow|capitalize }}</span>
                         </span>
-
-                    </span>
-
-                </label>
-
+                    </label>
                 {% endfor %}
-
             </div>
-
         </div>
 
-
-        <!-- Symptoms -->
-
+        <!-- 3. Symptoms -->
         <div class="form-section">
-
             <div class="form-section-heading">
-
-                <span class="section-number">
-                    03
-                </span>
-
+                <span class="section-number">03</span>
                 <div>
-                    <h2>Any symptoms?</h2>
-
-                    <p>
-                        Select everything you've experienced.
-                    </p>
+                    <h2>Symptoms</h2>
+                    <p>Tick anything you felt. You can skip this.</p>
                 </div>
-
             </div>
-
 
             <div class="symptom-grid">
-
-                {% for symptom in symptoms %}
-
-                <label class="symptom-option">
-
-                    <input
-                        type="checkbox"
-                        name="symptoms"
-                        value="{{ symptom }}"
-                        {% if symptom in request.form.getlist('symptoms') %}
-                            checked
-                        {% endif %}
-                    >
-
-                    <span class="symptom-check"></span>
-
-                    <span>
-                        {{ symptom|capitalize }}
-                    </span>
-
-                </label>
-
+                {% for s in symptoms %}
+                    <label class="symptom-option">
+                        <input type="checkbox" name="symptoms" value="{{ s }}"
+                               {% if s in values.symptoms %}checked{% endif %}>
+                        <span class="symptom-check"></span>
+                        <span>{{ s }}</span>
+                    </label>
                 {% endfor %}
-
             </div>
-
         </div>
 
-
-        <!-- Submit -->
-
         <div class="log-period-actions">
-
-            <a
-                href="{{ url_for('dashboard') }}"
-                class="secondary-button"
-            >
-                Cancel
-            </a>
-
-            <button
-                type="submit"
-                class="primary-button"
-            >
-                Save Period
+            <a href="{{ url_for('history' if editing else 'dashboard') }}"
+               class="secondary-button">Cancel</a>
+            <button type="submit" class="primary-button">
+                {{ 'Save changes' if editing else 'Save period' }}
             </button>
-
         </div>
 
     </form>
