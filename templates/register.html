@@ -1,5 +1,3 @@
-register.html
-
 {% extends "base.html" %}
 
 {% block title %}Create Account | Periodly{% endblock %}
@@ -7,77 +5,43 @@ register.html
 {% block content %}
 
 <section class="auth-page">
-
     <div class="auth-card">
 
         <div class="auth-header">
             <span class="auth-icon">🌸</span>
-
             <h1>Create your account</h1>
-
-            <p>
-                Start understanding your cycle with Periodly.
-            </p>
+            <p>Start understanding your cycle with Periodly.</p>
         </div>
 
         <form method="POST" class="auth-form">
 
             <div class="form-group">
                 <label for="name">Full name</label>
-
-                <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    placeholder="Enter your name"
-                    value="{{ request.form.get('name', '') }}"
-                    required
-                >
+                <input type="text" id="name" name="name"
+                       placeholder="Enter your name"
+                       value="{{ request.form.get('name', '') }}" required>
             </div>
 
             <div class="form-group">
                 <label for="email">Email address</label>
-
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="you@example.com"
-                    value="{{ request.form.get('email', '') }}"
-                    required
-                >
+                <input type="email" id="email" name="email"
+                       placeholder="you@example.com"
+                       value="{{ request.form.get('email', '') }}" required>
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
-
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="Create a password"
-                    required
-                >
+                <input type="password" id="password" name="password"
+                       placeholder="At least 6 characters" required>
             </div>
 
             <div class="form-group">
-                <label for="confirm_password">
-                    Confirm password
-                </label>
-
-                <input
-                    type="password"
-                    id="confirm_password"
-                    name="confirm_password"
-                    placeholder="Enter your password again"
-                    required
-                >
+                <label for="confirm_password">Confirm password</label>
+                <input type="password" id="confirm_password" name="confirm_password"
+                       placeholder="Enter your password again" required>
             </div>
 
-            <button type="submit" class="primary-button">
-                Create Account
-            </button>
-
+            <button type="submit" class="primary-button">Create Account</button>
         </form>
 
         <p class="auth-footer">
@@ -86,7 +50,6 @@ register.html
         </p>
 
     </div>
-
 </section>
 
 {% endblock %}
